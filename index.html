@@ -1,87 +1,4 @@
-function initializeColorPicker() {
-            // Initiera färgväljaren för "Lägg till"-modalen
-            const colorPicker = document.getElementById('color-picker');
-            colorPicker.innerHTML = '';
-            colors.forEach(color => {
-                const colorOption = document.createElement('div');
-                colorOption.className = 'color-option';
-                colorOption.style.backgroundColor = color;
-                if (color === selectedColor) {
-                    colorOption.classList.add('selected');
-                }
-                colorOption.onclick = () => selectColor(color);
-                colorPicker.appendChild(colorOption);
-            });
-
-            // Initiera färgväljaren för "Redigera"-modalen
-            const editColorPicker = document.getElementById('edit-color-picker');
-            editColorPicker.innerHTML = '';
-            colors.forEach(color => {
-                const colorOption = document.createElement('div');
-                colorOption.className = 'color-option';
-                colorOption.style.backgroundColor = color;
-                if (color === selectedEditColor) {
-                    colorOption.classList.add('selected');
-                }
-                colorOption.onclick = () => selectEditColor(color);
-                editColorPicker.appendChild(colorOption);
-            });
-
-            // Initiera färgväljaren för nya kategorier
-            const newCategoryColorPicker = document.getElementById('new-category-color-picker');
-            if (newCategoryColorPicker) {
-                newCategoryColorPicker.innerHTML = '';
-                colors.forEach(color => {
-                    const colorOption = document.createElement('div');
-                    colorOption.className = 'color-option';
-                    colorOption.style.backgroundColor = color;
-                    if (color === selectedCategoryColor) {
-                        colorOption.classList.add('selected');
-                    }
-                    colorOption.onclick = () => selectCategoryColor(color);
-                    newCategoryColorPicker.appendChild(colorOption);
-                });
-            }
-
-            // Uppdatera kategori-dropdowns
-            updateCategoryDropdowns();
-        }
-
-        function updateCategoryDropdowns() {
-            // Uppdatera "Lägg till"-formuläret
-            const activityCategorySelect = document.getElementById('activity-category');
-            if (activityCategorySelect) {
-                activityCategorySelect.innerHTML = '';
-                Object.entries(categories).forEach(([categoryId, category]) => {
-                    const option = document.createElement('option');
-                    option.value = categoryId;
-                    option.textContent = category.name;
-                    activityCategorySelect.appendChild(option);
-                });
-            }
-
-            // Uppdatera "Redigera"-formuläret
-            const editActivityCategorySelect = document.getElementById('edit-activity-category');
-            if (editActivityCategorySelect) {
-                editActivityCategorySelect.innerHTML = '';
-                Object.entries(categories).forEach(([categoryId, category]) => {
-                    const option = document.createElement('option');
-                    option.value = categoryId;
-                    option.textContent = category.name;
-                    editActivityCategorySelect.appendChild(option);
-                });
-            }
-        }
-
-        function selectCategoryColor(color) {
-            selectedCategoryColor = color;
-            document.querySelectorAll('#new-category-color-picker .color-option').forEach(option => {
-                option.classList.remove('selected');
-                if (option.style.backgroundColor === color) {
-                    option.classList.add('selected');
-                }
-            });
-        }<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
@@ -227,6 +144,16 @@ function initializeColorPicker() {
             height: auto;
         }
 
+        .month-sector {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .month-sector:hover {
+            opacity: 0.7;
+            transform: scale(1.01);
+        }
+
         .activity-ring {
             cursor: pointer;
             opacity: 0.85;
@@ -238,16 +165,6 @@ function initializeColorPicker() {
             opacity: 1;
             transform: scale(1.02);
             filter: brightness(1.1);
-        }
-
-        .month-sector {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .month-sector:hover {
-            opacity: 0.7;
-            transform: scale(1.01);
         }
 
         .month-label {
@@ -560,6 +477,7 @@ function initializeColorPicker() {
                 <button class="logout-btn" onclick="logout()">Logga ut</button>
             </div>
         </div>
+
         <div class="header">
             <div class="logo">
                 <img src="https://karlskoga.se/images/18.17cf90041722ce1749b5e/1640015633047/Karlskoga_liggande.png" alt="Karlskoga kommun" />
@@ -594,7 +512,7 @@ function initializeColorPicker() {
                 </div>
 
                 <div class="calendar-container">
-                    <svg id="calendar-svg" width="440" height="440" class="calendar-svg">
+                    <svg id="calendar-svg" width="500" height="500" class="calendar-svg">
                         <!-- Kalendern renderas här av JavaScript -->
                     </svg>
                 </div>
@@ -660,16 +578,51 @@ function initializeColorPicker() {
                 </select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Färg</label>
-                <div class="color-picker" id="color-picker">
-                    <!-- Färgalternativ läggs till av JavaScript -->
-                </div>
-            </div>
-
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="hideAddForm()">Avbryt</button>
                 <button class="btn" onclick="addActivity()">Lägg till</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal för att redigera aktivitet -->
+    <div id="edit-activity-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Redigera aktivitet</div>
+            
+            <div class="form-group">
+                <label class="form-label" for="edit-activity-name">Aktivitetsnamn</label>
+                <input type="text" id="edit-activity-name" class="form-input" placeholder="T.ex. Projektmöte">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="edit-activity-month">Månad</label>
+                <select id="edit-activity-month" class="form-input">
+                    <option value="0">Januari</option>
+                    <option value="1">Februari</option>
+                    <option value="2">Mars</option>
+                    <option value="3">April</option>
+                    <option value="4">Maj</option>
+                    <option value="5">Juni</option>
+                    <option value="6">Juli</option>
+                    <option value="7">Augusti</option>
+                    <option value="8">September</option>
+                    <option value="9">Oktober</option>
+                    <option value="10">November</option>
+                    <option value="11">December</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="edit-activity-category">Kategori</label>
+                <select id="edit-activity-category" class="form-input">
+                    <!-- Kategorier läggs till av JavaScript -->
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideEditForm()">Avbryt</button>
+                <button class="btn" onclick="updateActivity()">Spara ändringar</button>
             </div>
         </div>
     </div>
@@ -709,53 +662,6 @@ function initializeColorPicker() {
             </div>
         </div>
     </div>
-    <div id="edit-activity-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">Redigera aktivitet</div>
-            
-            <div class="form-group">
-                <label class="form-label" for="edit-activity-name">Aktivitetsnamn</label>
-                <input type="text" id="edit-activity-name" class="form-input" placeholder="T.ex. Projektmöte">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="edit-activity-month">Månad</label>
-                <select id="edit-activity-month" class="form-input">
-                    <option value="0">Januari</option>
-                    <option value="1">Februari</option>
-                    <option value="2">Mars</option>
-                    <option value="3">April</option>
-                    <option value="4">Maj</option>
-                    <option value="5">Juni</option>
-                    <option value="6">Juli</option>
-                    <option value="7">Augusti</option>
-                    <option value="8">September</option>
-                    <option value="9">Oktober</option>
-                    <option value="10">November</option>
-                    <option value="11">December</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="edit-activity-category">Kategori</label>
-                <select id="edit-activity-category" class="form-input">
-                    <!-- Kategorier läggs till av JavaScript -->
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Färg</label>
-                <div class="color-picker" id="edit-color-picker">
-                    <!-- Färgalternativ läggs till av JavaScript -->
-                </div>
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="hideEditForm()">Avbryt</button>
-                <button class="btn" onclick="updateActivity()">Spara ändringar</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         // Global variabler
@@ -768,47 +674,47 @@ function initializeColorPicker() {
             0: [
                 { id: 1, name: 'Verksamhetsplan', categoryId: 'soc_ledning' },
                 { id: 2, name: 'Bevaka stimulansmedel', categoryId: 'soc_ledning' }
-            ], // Januari
+            ],
             1: [
                 { id: 3, name: 'Årsredovisning', categoryId: 'socialnamnden' },
                 { id: 4, name: 'Ej verkställda beslut LSS och SoL kv.4', categoryId: 'socialnamnden' },
                 { id: 5, name: 'Sjukfrånvaro, tillbud och arbetsskador', categoryId: 'socialnamnden' },
                 { id: 6, name: 'Resultat brukarundersökningar ÄO och Funktionsstöd', categoryId: 'socialnamnden' },
                 { id: 7, name: 'Investeringsbudget', categoryId: 'socialnamnden' }
-            ], // Februari
+            ],
             2: [
                 { id: 8, name: 'Verksamhetsuppföljning', categoryId: 'soc_ledning' },
                 { id: 9, name: 'Brukarundersökning LSS – anmälan', categoryId: 'soc_ledning' },
                 { id: 10, name: 'Verksamhets- och ekonomirapport feb', categoryId: 'socialnamnden' }
-            ], // Mars
+            ],
             3: [
                 { id: 11, name: 'Verksamhets- och ekonomirapport mars', categoryId: 'socialnamnden' },
                 { id: 12, name: 'Patientsäkerhetsberättelse', categoryId: 'socialnamnden' },
                 { id: 13, name: 'Mål- och budget', categoryId: 'socialnamnden' }
-            ], // April
+            ],
             4: [
                 { id: 14, name: 'Verksamhets- och ekonomirapport apr', categoryId: 'socialnamnden' },
                 { id: 15, name: 'Ej verkställda beslut LSS och SoL, kv. 1', categoryId: 'socialnamnden' }
-            ], // Maj
+            ],
             5: [
                 { id: 16, name: 'Verksamhets- och ekonomirapport maj', categoryId: 'socialnamnden' }
-            ], // Juni
+            ],
             7: [
                 { id: 17, name: 'Verksamhetsuppföljning', categoryId: 'soc_ledning' }
-            ], // Augusti
+            ],
             8: [
                 { id: 18, name: 'Brukarundersökning LSS – genomförande', categoryId: 'soc_ledning' },
                 { id: 19, name: 'Delårsredovisning', categoryId: 'socialnamnden' },
                 { id: 20, name: 'Ej verkställda beslut LSS och SoL, kv. 2', categoryId: 'socialnamnden' }
-            ], // September
+            ],
             9: [
                 { id: 21, name: 'Verksamhetsuppföljning', categoryId: 'soc_ledning' },
                 { id: 22, name: 'Verksamhets- och ekonomirapport sep', categoryId: 'socialnamnden' }
-            ], // Oktober
+            ],
             10: [
                 { id: 23, name: 'Verksamhets- och ekonomirapport okt', categoryId: 'socialnamnden' },
                 { id: 24, name: 'Ej verkställda beslut LSS och SoL, kv. 3', categoryId: 'socialnamnden' }
-            ], // November
+            ],
             11: [
                 { id: 25, name: 'Återrapportera stimulansmedel', categoryId: 'soc_ledning' },
                 { id: 26, name: 'Verksamhets- och ekonomirapport nov', categoryId: 'socialnamnden' },
@@ -820,15 +726,13 @@ function initializeColorPicker() {
                 { id: 32, name: 'Arbetsmiljöstrategi', categoryId: 'socialnamnden' },
                 { id: 33, name: 'Internkontrollplan', categoryId: 'socialnamnden' },
                 { id: 34, name: 'Självskattning internkontroll', categoryId: 'socialnamnden' }
-            ] // December
+            ]
         };
 
         let selectedMonth = null;
-        let selectedColor = '#48606B'; // Starta med primärfärgen
-        let selectedEditColor = '#48606B'; // För redigeringsmodalen
-        let selectedCategoryColor = '#5863C7'; // För ny kategori
-        let editingActivity = null; // Håller reda på vilken aktivitet som redigeras
-        let isLoggedIn = false; // Alltid börja utloggad
+        let selectedCategoryColor = '#5863C7';
+        let editingActivity = null;
+        let isLoggedIn = false;
 
         const months = [
             'Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni',
@@ -848,249 +752,64 @@ function initializeColorPicker() {
 
         // Initialisering
         document.addEventListener('DOMContentLoaded', function() {
-            // Säkerställ att vi alltid börjar utloggade
             isLoggedIn = false;
             initializeColorPicker();
             renderCalendar();
             renderActivityList();
             updateLoginUI();
             
-            // Lägg till event listeners
             document.getElementById('admin-login-btn').addEventListener('click', showAdminLogin);
         });
 
         function initializeColorPicker() {
-            // Initiera färgväljaren för "Lägg till"-modalen
-            const colorPicker = document.getElementById('color-picker');
-            colorPicker.innerHTML = '';
-            colors.forEach(color => {
-                const colorOption = document.createElement('div');
-                colorOption.className = 'color-option';
-                colorOption.style.backgroundColor = color;
-                if (color === selectedColor) {
-                    colorOption.classList.add('selected');
-                }
-                colorOption.onclick = () => selectColor(color);
-                colorPicker.appendChild(colorOption);
-            });
-
-            // Initiera färgväljaren för "Redigera"-modalen
-            const editColorPicker = document.getElementById('edit-color-picker');
-            editColorPicker.innerHTML = '';
-            colors.forEach(color => {
-                const colorOption = document.createElement('div');
-                colorOption.className = 'color-option';
-                colorOption.style.backgroundColor = color;
-                if (color === selectedEditColor) {
-                    colorOption.classList.add('selected');
-                }
-                colorOption.onclick = () => selectEditColor(color);
-                editColorPicker.appendChild(colorOption);
-            });
-        }
-
-        function selectColor(color) {
-            selectedColor = color;
-            document.querySelectorAll('#color-picker .color-option').forEach(option => {
-                option.classList.remove('selected');
-                if (option.style.backgroundColor === color) {
-                    option.classList.add('selected');
-                }
-            });
-        }
-
-        function showCategoryManager() {
-            if (!isLoggedIn) {
-                showAdminLogin();
-                return;
-            }
-            initializeColorPicker();
-            updateCategoryList();
-            document.getElementById('category-manager-modal').classList.add('active');
-        }
-
-        function hideCategoryManager() {
-            document.getElementById('category-manager-modal').classList.remove('active');
-        }
-
-        function updateCategoryList() {
-            const categoryList = document.getElementById('category-list');
-            categoryList.innerHTML = '';
-            
-            Object.entries(categories).forEach(([categoryId, category]) => {
-                const categoryItem = document.createElement('div');
-                categoryItem.className = 'activity-item';
-                categoryItem.innerHTML = `
-                    <div class="activity-info">
-                        <div class="activity-color" style="background-color: ${category.color}"></div>
-                        <div class="activity-details">
-                            <h3>${category.name}</h3>
-                            <p>Kategori-ID: ${categoryId}</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-danger" onclick="removeCategory('${categoryId}')">Ta bort</button>
-                `;
-                categoryList.appendChild(categoryItem);
-            });
-        }
-
-        function addCategory() {
-            const name = document.getElementById('new-category-name').value.trim();
-            
-            if (!name) {
-                alert('Vänligen ange ett kategorinamn');
-                return;
-            }
-            
-            // Skapa ett unikt ID baserat på namnet
-            const categoryId = name.toLowerCase()
-                .replace(/å/g, 'a').replace(/ä/g, 'a').replace(/ö/g, 'o')
-                .replace(/[^a-z0-9]/g, '_')
-                .replace(/_+/g, '_')
-                .replace(/^_|_$/g, '');
-            
-            if (categories[categoryId]) {
-                alert('En kategori med detta namn finns redan');
-                return;
-            }
-            
-            categories[categoryId] = {
-                name: name,
-                color: selectedCategoryColor
-            };
-            
-            // Rensa formuläret
-            document.getElementById('new-category-name').value = '';
-            
-            // Uppdatera allt
-            initializeColorPicker();
-            updateCategoryList();
-            renderActivityList();
-        }
-
-        function removeCategory(categoryId) {
-            // Kontrollera om någon aktivitet använder denna kategori
-            const activitiesUsingCategory = [];
-            Object.entries(activities).forEach(([month, monthActivities]) => {
-                monthActivities.forEach(activity => {
-                    if (activity.categoryId === categoryId) {
-                        activitiesUsingCategory.push(activity);
+            const newCategoryColorPicker = document.getElementById('new-category-color-picker');
+            if (newCategoryColorPicker) {
+                newCategoryColorPicker.innerHTML = '';
+                colors.forEach(color => {
+                    const colorOption = document.createElement('div');
+                    colorOption.className = 'color-option';
+                    colorOption.style.backgroundColor = color;
+                    if (color === selectedCategoryColor) {
+                        colorOption.classList.add('selected');
                     }
+                    colorOption.onclick = () => selectCategoryColor(color);
+                    newCategoryColorPicker.appendChild(colorOption);
                 });
-            });
-            
-            if (activitiesUsingCategory.length > 0) {
-                const activityNames = activitiesUsingCategory.map(a => a.name).join(', ');
-                alert(`Kan inte ta bort kategorin eftersom följande aktiviteter använder den: ${activityNames}`);
-                return;
             }
-            
-            if (confirm(`Är du säker på att du vill ta bort kategorin "${categories[categoryId].name}"?`)) {
-                delete categories[categoryId];
-                updateCategoryList();
-                initializeColorPicker();
-                renderActivityList();
+
+            const editActivityCategorySelect = document.getElementById('edit-activity-category');
+            if (editActivityCategorySelect) {
+                editActivityCategorySelect.innerHTML = '';
+                Object.entries(categories).forEach(([categoryId, category]) => {
+                    const option = document.createElement('option');
+                    option.value = categoryId;
+                    option.textContent = category.name;
+                    editActivityCategorySelect.appendChild(option);
+                });
             }
         }
 
-        function selectEditColor(color) {
-            selectedEditColor = color;
-            document.querySelectorAll('#edit-color-picker .color-option').forEach(option => {
+        function selectCategoryColor(color) {
+            selectedCategoryColor = color;
+            document.querySelectorAll('#new-category-color-picker .color-option').forEach(option => {
                 option.classList.remove('selected');
                 if (option.style.backgroundColor === color) {
                     option.classList.add('selected');
                 }
             });
-        }
-
-        function showEditForm(monthIndex, activityId) {
-            if (!isLoggedIn) {
-                showAdminLogin();
-                return;
-            }
-
-            // Hitta aktiviteten som ska redigeras
-            const activity = activities[monthIndex]?.find(a => a.id === activityId);
-            if (!activity) {
-                alert('Aktivitet hittades inte');
-                return;
-            }
-
-            // Spara referens till aktiviteten som redigeras
-            editingActivity = { month: monthIndex, id: activityId };
-
-            // Fyll i formuläret med nuvarande värden
-            document.getElementById('edit-activity-name').value = activity.name;
-            document.getElementById('edit-activity-month').value = monthIndex;
-            selectedEditColor = activity.color;
-
-            // Uppdatera färgväljaren
-            initializeColorPicker();
-
-            // Visa modalen
-            document.getElementById('edit-activity-modal').classList.add('active');
-        }
-
-        function hideEditForm() {
-            document.getElementById('edit-activity-modal').classList.remove('active');
-            editingActivity = null;
-        }
-
-        function updateActivity() {
-            if (!isLoggedIn || !editingActivity) {
-                alert('Du måste logga in för att redigera aktiviteter.');
-                return;
-            }
-
-            const newName = document.getElementById('edit-activity-name').value.trim();
-            const newMonth = parseInt(document.getElementById('edit-activity-month').value);
-
-            if (!newName) {
-                alert('Vänligen ange ett aktivitetsnamn');
-                return;
-            }
-
-            const oldMonth = editingActivity.month;
-            const activityId = editingActivity.id;
-
-            // Ta bort aktiviteten från den gamla månaden
-            if (activities[oldMonth]) {
-                activities[oldMonth] = activities[oldMonth].filter(activity => activity.id !== activityId);
-                if (activities[oldMonth].length === 0) {
-                    delete activities[oldMonth];
-                }
-            }
-
-            // Lägg till aktiviteten i den nya månaden med uppdaterade värden
-            if (!activities[newMonth]) {
-                activities[newMonth] = [];
-            }
-
-            activities[newMonth].push({
-                id: activityId,
-                name: newName,
-                color: selectedEditColor
-            });
-
-            // Uppdatera vyn
-            renderCalendar();
-            renderActivityList();
-            hideEditForm();
         }
 
         function renderCalendar() {
             const svg = document.getElementById('calendar-svg');
             svg.innerHTML = '';
 
-            // Fasta värden för kompakt design
-            const svgSize = 500; // Fast storlek
+            const svgSize = 500;
             const centerX = svgSize / 2;
             const centerY = svgSize / 2;
             const baseRadius = 60;
-            const maxOuterRadius = 190; // Max radie för aktiviteter
-            const outerLabelRadius = 220; // Radius för månadsnamn
+            const maxOuterRadius = 190;
+            const outerLabelRadius = 220;
             
-            // Hitta den månad som har flest aktiviteter för att beräkna ringbredden
             let maxActivitiesCount = 0;
             for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
                 const monthActivities = activities[monthIndex] || [];
@@ -1099,15 +818,12 @@ function initializeColorPicker() {
                 }
             }
             
-            // Beräkna optimal ringbredd baserat på tillgängligt utrymme
             const availableSpace = maxOuterRadius - baseRadius;
             const ringWidth = Math.max(8, Math.min(20, availableSpace / maxActivitiesCount));
 
-            // Uppdatera SVG-storleken (fast storlek)
             svg.setAttribute('width', svgSize);
             svg.setAttribute('height', svgSize);
 
-            // Rita yttre cirkel med månadsnamn
             const outerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             outerCircle.setAttribute('cx', centerX);
             outerCircle.setAttribute('cy', centerY);
@@ -1118,10 +834,7 @@ function initializeColorPicker() {
             outerCircle.setAttribute('stroke-dasharray', '2,2');
             svg.appendChild(outerCircle);
 
-            // Skapa en defs-sektion för textbanan
             const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-            
-            // Skapa en osynlig cirkel för textbanan
             const textPath = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             textPath.setAttribute('id', 'text-circle');
             textPath.setAttribute('cx', centerX);
@@ -1131,11 +844,9 @@ function initializeColorPicker() {
             defs.appendChild(textPath);
             svg.appendChild(defs);
 
-            // Rita månadsindelningslinjer från inre till yttre cirkel
             for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
                 const angle = (monthIndex * 30 - 90) * (Math.PI / 180);
                 
-                // Linje från inre cirkel till yttre cirkel
                 const lineInnerX = centerX + baseRadius * Math.cos(angle);
                 const lineInnerY = centerY + baseRadius * Math.sin(angle);
                 const lineOuterX = centerX + outerLabelRadius * Math.cos(angle);
@@ -1152,14 +863,12 @@ function initializeColorPicker() {
                 svg.appendChild(monthLine);
             }
 
-            // Rita månadssektioner och aktiviteter
             for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
                 const startAngle = (monthIndex * 30 - 90) * (Math.PI / 180);
                 const endAngle = ((monthIndex + 1) * 30 - 90) * (Math.PI / 180);
                 const monthActivities = activities[monthIndex] || [];
                 const maxRadius = baseRadius + (monthActivities.length * ringWidth);
 
-                // Bakgrundssektioner för månad
                 const monthSector = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 const pathData = createSectorPath(centerX, centerY, baseRadius, maxRadius, startAngle, endAngle);
                 
@@ -1171,7 +880,6 @@ function initializeColorPicker() {
                 monthSector.onclick = () => selectMonth(monthIndex);
                 svg.appendChild(monthSector);
 
-                // Rita aktivitetsringar
                 monthActivities.forEach((activity, activityIndex) => {
                     const innerRadius = baseRadius + (activityIndex * ringWidth);
                     const outerRadius = innerRadius + ringWidth;
@@ -1179,7 +887,6 @@ function initializeColorPicker() {
                     const activityRing = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                     const activityPath = createSectorPath(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle);
                     
-                    // Hämta färg från kategori
                     const category = categories[activity.categoryId];
                     const activityColor = category ? category.color : '#888888';
                     
@@ -1190,7 +897,6 @@ function initializeColorPicker() {
                     activityRing.className = 'activity-ring';
                     activityRing.onclick = () => selectMonth(monthIndex);
                     
-                    // Tooltip
                     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
                     const categoryName = category ? category.name : 'Okänd kategori';
                     title.textContent = `${activity.name} (${categoryName})`;
@@ -1200,18 +906,14 @@ function initializeColorPicker() {
                 });
             }
 
-            // Rita månadsnamn på den yttre cirkeln - centrerat för varje månad
             for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
-                // Beräkna vinkel för mitten av månaden
-                const angle = monthIndex * 30; // 30 grader per månad
-                const offsetAngle = angle - 90 + 15; // Starta från toppen och centrera (+15 för att komma till mitten av sektorn)
+                const angle = monthIndex * 30;
+                const offsetAngle = angle - 90 + 15;
                 
-                // Skapa en kort båge för texten att följa på yttre cirkeln
                 const arcPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 const pathId = `month-arc-${monthIndex}`;
                 arcPath.setAttribute('id', pathId);
                 
-                // Beräkna bågens start- och slutpunkter (12 grader före och efter månadscentrum)
                 const startAngle = (offsetAngle - 12) * (Math.PI / 180);
                 const endAngle = (offsetAngle + 12) * (Math.PI / 180);
                 
@@ -1225,14 +927,12 @@ function initializeColorPicker() {
                 arcPath.setAttribute('fill', 'none');
                 arcPath.setAttribute('stroke', 'none');
                 
-                // Lägg till path till defs
                 defs.appendChild(arcPath);
                 
-                // Skapa text som följer banan
                 const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 textElement.className = 'month-label';
                 textElement.setAttribute('text-anchor', 'middle');
-                textElement.setAttribute('font-size', '13'); // Fast fontstorlek för läsbarhet
+                textElement.setAttribute('font-size', '13');
                 textElement.setAttribute('font-weight', '600');
                 textElement.setAttribute('fill', '#374151');
                 textElement.style.cursor = 'pointer';
@@ -1240,14 +940,13 @@ function initializeColorPicker() {
                 
                 const textPath = document.createElementNS('http://www.w3.org/2000/svg', 'textPath');
                 textPath.setAttribute('href', `#${pathId}`);
-                textPath.setAttribute('startOffset', '50%'); // Centrera texten på banan
+                textPath.setAttribute('startOffset', '50%');
                 textPath.textContent = months[monthIndex];
                 
                 textElement.appendChild(textPath);
                 svg.appendChild(textElement);
             }
 
-            // Centrumcirkel
             const centerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             centerCircle.setAttribute('cx', centerX);
             centerCircle.setAttribute('cy', centerY);
@@ -1304,11 +1003,9 @@ function initializeColorPicker() {
             const listContainer = document.getElementById('activity-list');
             const titleElement = document.getElementById('activity-list-title');
             
-            // Uppdatera titel
             titleElement.textContent = selectedMonth !== null ? 
                 `Aktiviteter för ${months[selectedMonth]}` : 'Alla aktiviteter';
             
-            // Hämta filtrerade aktiviteter
             const filteredActivities = getFilteredActivities();
             
             if (filteredActivities.length === 0) {
@@ -1357,77 +1054,139 @@ function initializeColorPicker() {
             return (activities[selectedMonth] || []).map(activity => ({ ...activity, month: selectedMonth }));
         }
 
+        function showCategoryManager() {
+            if (!isLoggedIn) {
+                showAdminLogin();
+                return;
+            }
+            initializeColorPicker();
+            updateCategoryList();
+            document.getElementById('category-manager-modal').classList.add('active');
+        }
+
+        function hideCategoryManager() {
+            document.getElementById('category-manager-modal').classList.remove('active');
+        }
+
+        function updateCategoryList() {
+            const categoryList = document.getElementById('category-list');
+            categoryList.innerHTML = '';
+            
+            Object.entries(categories).forEach(([categoryId, category]) => {
+                const categoryItem = document.createElement('div');
+                categoryItem.className = 'activity-item';
+                
+                const categoryInfo = document.createElement('div');
+                categoryInfo.className = 'activity-info';
+                
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'activity-color';
+                colorDiv.style.backgroundColor = category.color;
+                
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'activity-details';
+                
+                const nameH3 = document.createElement('h3');
+                nameH3.textContent = category.name;
+                
+                const idP = document.createElement('p');
+                idP.textContent = `Kategori-ID: ${categoryId}`;
+                
+                detailsDiv.appendChild(nameH3);
+                detailsDiv.appendChild(idP);
+                
+                categoryInfo.appendChild(colorDiv);
+                categoryInfo.appendChild(detailsDiv);
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn btn-danger';
+                removeBtn.textContent = 'Ta bort';
+                removeBtn.onclick = function() {
+                    removeCategory(categoryId);
+                };
+                
+                categoryItem.appendChild(categoryInfo);
+                categoryItem.appendChild(removeBtn);
+                categoryList.appendChild(categoryItem);
+            });
+        }
+
+        function removeCategory(categoryId) {
+            console.log('Försöker ta bort kategori:', categoryId); // Debug
+            
+            // Kontrollera om någon aktivitet använder denna kategori
+            const activitiesUsingCategory = [];
+            Object.entries(activities).forEach(([month, monthActivities]) => {
+                monthActivities.forEach(activity => {
+                    if (activity.categoryId === categoryId) {
+                        activitiesUsingCategory.push(activity);
+                    }
+                });
+            });
+            
+            if (activitiesUsingCategory.length > 0) {
+                const activityNames = activitiesUsingCategory.map(a => a.name).join(', ');
+                alert(`Kan inte ta bort kategorin eftersom följande aktiviteter använder den: ${activityNames}`);
+                return;
+            }
+            
+            if (confirm(`Är du säker på att du vill ta bort kategorin "${categories[categoryId].name}"?`)) {
+                console.log('Tar bort kategori:', categoryId); // Debug
+                delete categories[categoryId];
+                updateCategoryList();
+                updateCategoryDropdowns();
+                renderActivityList();
+                renderCalendar();
+                console.log('Kategori borttagen. Kvarvarande kategorier:', Object.keys(categories)); // Debug
+            }
+        }
+
         function login() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             
-            console.log('Login attempt:', username, password);
-            
-            // ÄNDRA ANVÄNDARNAMN OCH LÖSENORD HÄR:
             if (username === 'admin' && password === 'kommun2025') {
                 isLoggedIn = true;
-                console.log('Login successful, isLoggedIn now:', isLoggedIn);
-                
-                // Stäng inloggningsmodal
                 document.getElementById('login-overlay').classList.add('hidden');
-                
-                // Uppdatera UI
                 updateLoginUI();
                 renderActivityList();
-                
-                // Rensa formuläret
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
-                
-                console.log('Login process completed');
             } else {
                 alert('Felaktigt användarnamn eller lösenord.');
             }
         }
 
         function logout() {
-            console.log('Logout clicked!');
             isLoggedIn = false;
             updateLoginUI();
             renderActivityList();
             hideAddForm();
+            hideEditForm();
+            hideCategoryManager();
         }
 
         function updateLoginUI() {
-            console.log('updateLoginUI called, isLoggedIn:', isLoggedIn);
-            
             const adminLoginBtn = document.getElementById('admin-login-btn');
             const loginControls = document.getElementById('login-controls');
             
-            // Tvinga en omritning genom att sätta styles direkt
             if (isLoggedIn) {
-                console.log('Should show logged in state');
                 adminLoginBtn.style.display = 'none';
-                adminLoginBtn.style.visibility = 'hidden';
                 loginControls.style.display = 'flex';
                 loginControls.classList.remove('hidden');
                 
-                // Visa alla admin-knappar
                 document.querySelectorAll('.admin-only').forEach(element => {
                     element.style.display = element.classList.contains('btn') ? 'flex' : 'block';
-                    element.classList.add('show');
                 });
             } else {
-                console.log('Should show logged out state');
                 adminLoginBtn.style.display = 'flex';
-                adminLoginBtn.style.visibility = 'visible';
                 loginControls.style.display = 'none';
                 loginControls.classList.add('hidden');
                 
-                // Dölj alla admin-knappar
                 document.querySelectorAll('.admin-only').forEach(element => {
                     element.style.display = 'none';
-                    element.classList.remove('show');
                 });
             }
-            
-            console.log('Admin button display:', adminLoginBtn.style.display);
-            console.log('Login controls display:', loginControls.style.display);
         }
 
         function showAdminLogin() {
@@ -1443,13 +1202,14 @@ function initializeColorPicker() {
             document.getElementById('activity-name').value = '';
             document.getElementById('activity-month').value = selectedMonth || 0;
             
-            // Sätt första tillgängliga kategori som standard
             const firstCategoryId = Object.keys(categories)[0];
             if (firstCategoryId) {
                 document.getElementById('activity-category').value = firstCategoryId;
             }
-            
-            initializeColorPicker();
+        }
+
+        function hideAddForm() {
+            document.getElementById('add-activity-modal').classList.remove('active');
         }
 
         function addActivity() {
@@ -1494,26 +1254,24 @@ function initializeColorPicker() {
                 return;
             }
 
-            // Hitta aktiviteten som ska redigeras
             const activity = activities[monthIndex]?.find(a => a.id === activityId);
             if (!activity) {
                 alert('Aktivitet hittades inte');
                 return;
             }
 
-            // Spara referens till aktiviteten som redigeras
             editingActivity = { month: monthIndex, id: activityId };
 
-            // Fyll i formuläret med nuvarande värden
             document.getElementById('edit-activity-name').value = activity.name;
             document.getElementById('edit-activity-month').value = monthIndex;
             document.getElementById('edit-activity-category').value = activity.categoryId || Object.keys(categories)[0];
 
-            // Uppdatera färgväljaren
-            initializeColorPicker();
-
-            // Visa modalen
             document.getElementById('edit-activity-modal').classList.add('active');
+        }
+
+        function hideEditForm() {
+            document.getElementById('edit-activity-modal').classList.remove('active');
+            editingActivity = null;
         }
 
         function updateActivity() {
@@ -1539,7 +1297,6 @@ function initializeColorPicker() {
             const oldMonth = editingActivity.month;
             const activityId = editingActivity.id;
 
-            // Ta bort aktiviteten från den gamla månaden
             if (activities[oldMonth]) {
                 activities[oldMonth] = activities[oldMonth].filter(activity => activity.id !== activityId);
                 if (activities[oldMonth].length === 0) {
@@ -1547,7 +1304,6 @@ function initializeColorPicker() {
                 }
             }
 
-            // Lägg till aktiviteten i den nya månaden med uppdaterade värden
             if (!activities[newMonth]) {
                 activities[newMonth] = [];
             }
@@ -1558,7 +1314,6 @@ function initializeColorPicker() {
                 categoryId: newCategoryId
             });
 
-            // Uppdatera vyn
             renderCalendar();
             renderActivityList();
             hideEditForm();
@@ -1581,35 +1336,31 @@ function initializeColorPicker() {
             renderActivityList();
         }
 
-        // Stäng modal vid klick utanför
+        // Event listeners
         document.getElementById('add-activity-modal').addEventListener('click', function(e) {
             if (e.target === this) {
                 hideAddForm();
             }
         });
 
-        // Stäng redigeringsmodal vid klick utanför
         document.getElementById('edit-activity-modal').addEventListener('click', function(e) {
             if (e.target === this) {
                 hideEditForm();
             }
         });
 
-        // Stäng kategorimanager vid klick utanför
         document.getElementById('category-manager-modal').addEventListener('click', function(e) {
             if (e.target === this) {
                 hideCategoryManager();
             }
         });
 
-        // Stäng inloggningsmodal vid klick utanför
         document.getElementById('login-overlay').addEventListener('click', function(e) {
             if (e.target === this) {
                 document.getElementById('login-overlay').classList.add('hidden');
             }
         });
 
-        // Tillåt Enter-tangent för inloggning
         document.getElementById('password').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 login();
@@ -1621,9 +1372,18 @@ function initializeColorPicker() {
                 login();
             }
         });
-
-        // Lägg till klick-lyssnare för admin-knappen - Ta bort duplicerad kod
-        // Event listener läggs till i DOMContentLoaded ovan
     </script>
 </body>
 </html>
+
+        function updateCategoryDropdowns() {
+            const activityCategorySelect = document.getElementById('activity-category');
+            if (activityCategorySelect) {
+                activityCategorySelect.innerHTML = '';
+                Object.entries(categories).forEach(([categoryId, category]) => {
+                    const option = document.createElement('option');
+                    option.value = categoryId;
+                    option.textContent = category.name;
+                    activityCategorySelect.appendChild(option);
+                });
+            }
